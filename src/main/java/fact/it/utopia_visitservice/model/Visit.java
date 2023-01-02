@@ -5,25 +5,27 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Document
 public class Visit {
     @Id
     private String id;
     private int stationID;
-    private int interestID;
+    private Map<Integer, Integer> countPerInterests;
     private LocalDate date;
-    private int count;
+    private int total;
 
     public Visit() {
     }
 
-    public Visit(String id, int stationID, int interestID, LocalDate date, int count) {
+    public Visit(String id, int stationID, int interestID, LocalDate date, int total, Map<Integer, Integer> countPerInterests) {
         this.id = id;
         this.stationID = stationID;
-        this.interestID = interestID;
+        this.countPerInterests = countPerInterests;
         this.date = date;
-        this.count = count;
+        this.total = total;
     }
 
     public String getId() {
@@ -42,12 +44,12 @@ public class Visit {
         this.stationID = stationID;
     }
 
-    public int getInterestID() {
-        return interestID;
+    public Map<Integer, Integer> getCountPerInterests() {
+        return countPerInterests;
     }
 
-    public void setInterestID(int interestID) {
-        this.interestID = interestID;
+    public void setCountPerInterests(Map<Integer, Integer> countPerInterests) {
+        this.countPerInterests = countPerInterests;
     }
 
     public LocalDate getDate() {
@@ -58,11 +60,15 @@ public class Visit {
         this.date = date;
     }
 
-    public int getCount() {
-        return count;
+    public int getTotal() {
+        return total;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public void setTotal(int count) {
+        this.total = count;
+    }
+
+    public void incrementTotal() {
+        this.total += 1;
     }
 }

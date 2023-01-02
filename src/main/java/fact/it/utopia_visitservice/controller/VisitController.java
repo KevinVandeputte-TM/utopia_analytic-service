@@ -2,6 +2,7 @@ package fact.it.utopia_visitservice.controller;
 
 import fact.it.utopia_visitservice.model.Visit;
 import fact.it.utopia_visitservice.model.VisitDTO;
+import fact.it.utopia_visitservice.model.VisitGrouped;
 import fact.it.utopia_visitservice.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,18 +32,19 @@ public class VisitController {
         return visitRepository.findByStationID(stationID);
     }
 
-    @GetMapping("/visits/{interestID}")
-    public List<Visit> getVisitsForInterest(@PathVariable int interestID) {
-        return visitRepository.findByInterestID(interestID);
-    }
-
     @GetMapping("/visits/{date}")
     public List<Visit> getVisitsForDate(@PathVariable String date) {
         LocalDate localDate = LocalDate.parse(date);
         return visitRepository.findByDate(localDate);
     }
 
-    @GetMapping("/visits/total")
+    @GetMapping("/visits/date/{date}/station/{stationID}")
+    public Visit getVisitForDateAndStation(@PathVariable String date, @PathVariable int stationID) {
+        LocalDate localDate = LocalDate.parse(date);
+        return visitRepository.findVisitByDateAndStationID(localDate, stationID);
+    }
+
+    @GetMapping("/visits/totalPerStation")
     public List<Visit> getTotalPerStation() {
         List<Visit> visits = visitRepository.findAll();
         Map<Integer, List<Visit>> visitsGrouped =
@@ -53,8 +55,8 @@ public class VisitController {
         for (Map.Entry<Integer, List<Visit>> visitsOfStation : visitsGrouped.entrySet()) {
             Visit visit = new Visit();
             visit.setStationID(visitsOfStation.getKey());
-            int sum = visitsOfStation.getValue().stream().mapToInt(o -> o.getCount()).sum();
-            visit.setCount(sum);
+            int sum = visitsOfStation.getValue().stream().mapToInt(o -> o.getTotal()).sum();
+            visit.setTotal(sum);
 
             visitsPerStation.add(visit);
         }
@@ -66,17 +68,27 @@ public class VisitController {
     public ResponseEntity<Void> createOrUpdate(@RequestBody VisitDTO visit) {
         Optional<Visit> visitOptional = Optional.ofNullable(visitRepository.findVisitByDateAndStationID(LocalDate.now(), visit.getStationID()));
         if (visitOptional.isPresent()) {
+            int interestID = visit.getInterestID();
             Visit v = visitOptional.get();
-            v.setCount(v.getCount() + 1);
+            if (v.getCountPerInterests().get(interestID) != null) {
+                v.getCountPerInterests().merge(interestID, 1, Integer::sum);
+            } else {
+                v.getCountPerInterests().put(interestID, 1);
+            }
+            v.incrementTotal();
             visitRepository.save(v);
-            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            Map<Integer, Integer> counts = new HashMap<>();
+            counts.put(visit.getInterestID(), 1);
+            Visit v = new Visit();
+            v.setTotal(1);
+            v.setDate(LocalDate.now());
+            v.setCountPerInterests(counts);
+            v.setStationID(visit.getStationID());
+            visitRepository.save(v);
         }
-        Visit v = new Visit();
-        v.setCount(1);
-        v.setStationID(visit.getStationID());
-        v.setInterestID(visit.getInterestID());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    
+
 }
