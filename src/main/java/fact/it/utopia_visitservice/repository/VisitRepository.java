@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface VisitRepository extends MongoRepository<Visit, String> {
     List<Visit> findByStationID(int stationID);
-    List<Visit> findByInterestID(int interestID);
     List<Visit> findByDate(LocalDate date);
     Visit findVisitByDateAndStationID(LocalDate date, int stationID);
 }

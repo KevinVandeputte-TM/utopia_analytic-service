@@ -2,8 +2,8 @@ package fact.it.utopia_visitservice.controller;
 
 import fact.it.utopia_visitservice.model.Visit;
 import fact.it.utopia_visitservice.model.VisitDTO;
-import fact.it.utopia_visitservice.model.VisitGrouped;
 import fact.it.utopia_visitservice.repository.VisitRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +20,23 @@ public class VisitController {
 
     public VisitController(VisitRepository visitRepository) {
         this.visitRepository = visitRepository;
+    }
+
+    private Random rnd = new Random();
+    @PostConstruct
+    public void fillDBtemp() {
+        if(visitRepository.count() == 0) {
+            for(int i = 0; i < 10; i++) {
+                Visit v = new Visit();
+                v.setStationID(i+1);
+                v.setTotal(10);
+                v.setDate(LocalDate.now());
+                Map<Integer, Integer> counts = new HashMap<>();
+                counts.put(rnd.nextInt(8), rnd.nextInt(30));
+                counts.put(rnd.nextInt(8), rnd.nextInt(30));
+                visitRepository.save(v);
+            }
+        }
     }
 
     @GetMapping("/visits")
