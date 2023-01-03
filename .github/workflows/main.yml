@@ -1,0 +1,40 @@
+name: Build,test and deliver container
+
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17.0.2
+
+      - name: Start MongoDB for integration test
+        uses: supercharge/mongodb-github-action@1.3.0
+        with:
+          mongodb-version: 4.2
+          mongodb-port: 8054
+
+      - name: Build and package project
+        run: mvn -B verify
+
+      - name: Docker login
+        run: docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Docker Build
+        run: docker build -t ${{secrets.DOCKER_USER}}/utopia_analytic-service:latest .
+
+      - name: Upload container to Docker Hub with Push
+        run: docker push ${{secrets.DOCKER_USER}}/utopia_analytic-service:latest
