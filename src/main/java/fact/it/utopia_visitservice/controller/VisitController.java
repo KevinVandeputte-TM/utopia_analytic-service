@@ -34,6 +34,7 @@ public class VisitController {
                 Map<Integer, Integer> counts = new HashMap<>();
                 counts.put(rnd.nextInt(8), rnd.nextInt(30));
                 counts.put(rnd.nextInt(8), rnd.nextInt(30));
+                v.setCountPerInterests(counts);
                 visitRepository.save(v);
             }
         }
@@ -49,7 +50,7 @@ public class VisitController {
         return visitRepository.findByStationID(stationID);
     }
 
-    @GetMapping("/visits/{date}")
+    @GetMapping("/visits/date/{date}")
     public List<Visit> getVisitsForDate(@PathVariable String date) {
         LocalDate localDate = LocalDate.parse(date);
         return visitRepository.findByDate(localDate);
