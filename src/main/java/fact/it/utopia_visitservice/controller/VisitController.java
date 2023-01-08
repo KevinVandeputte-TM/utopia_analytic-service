@@ -26,14 +26,19 @@ public class VisitController {
     @PostConstruct
     public void fillDBtemp() {
         if(visitRepository.count() == 0) {
-            for(int i = 0; i < 10; i++) {
-                Visit v = new Visit();
-                v.setStationID(i+1);
-                v.setCount(rnd.nextInt(30));
-                v.setDate(LocalDate.now());
-                v.setInterestID(rnd.nextInt(8));
-                visitRepository.save(v);
+            for(int x = 0; x <= 7; x++) {
+                for(int i = 9; i < 37; i++) {
+                    for(int j = 1; j<=9; j++) {
+                        Visit v = new Visit();
+                        v.setStationID(i);
+                        v.setCount(rnd.nextInt(30));
+                        v.setDate(LocalDate.now().minusDays(x));
+                        v.setInterestID(j);
+                        visitRepository.save(v);
+                    }
+                }
             }
+
         }
     }
 
