@@ -29,12 +29,9 @@ public class VisitController {
             for(int i = 0; i < 10; i++) {
                 Visit v = new Visit();
                 v.setStationID(i+1);
-                v.setTotal(10);
+                v.setCount(rnd.nextInt(30));
                 v.setDate(LocalDate.now());
-                Map<Integer, Integer> counts = new HashMap<>();
-                counts.put(rnd.nextInt(8), rnd.nextInt(30));
-                counts.put(rnd.nextInt(8), rnd.nextInt(30));
-                v.setCountPerInterests(counts);
+                v.setInterestID(rnd.nextInt(8));
                 visitRepository.save(v);
             }
         }
@@ -56,52 +53,18 @@ public class VisitController {
         return visitRepository.findByDate(localDate);
     }
 
-    @GetMapping("/visits/date/{date}/station/{stationID}")
-    public Visit getVisitForDateAndStation(@PathVariable String date, @PathVariable int stationID) {
-        LocalDate localDate = LocalDate.parse(date);
-        return visitRepository.findVisitByDateAndStationID(localDate, stationID);
-    }
-
-    @GetMapping("/visits/totalPerStation")
-    public List<Visit> getTotalPerStation() {
-        List<Visit> visits = visitRepository.findAll();
-        Map<Integer, List<Visit>> visitsGrouped =
-                visits.stream().collect(Collectors.groupingBy(w -> w.getStationID()));
-
-        List<Visit> visitsPerStation = new ArrayList<>();
-
-        for (Map.Entry<Integer, List<Visit>> visitsOfStation : visitsGrouped.entrySet()) {
-            Visit visit = new Visit();
-            visit.setStationID(visitsOfStation.getKey());
-            int sum = visitsOfStation.getValue().stream().mapToInt(o -> o.getTotal()).sum();
-            visit.setTotal(sum);
-
-            visitsPerStation.add(visit);
-        }
-
-        return visitsPerStation;
-    }
-
     @PutMapping("/visit")
     public ResponseEntity<Void> createOrUpdate(@RequestBody VisitDTO visit) {
-        Optional<Visit> visitOptional = Optional.ofNullable(visitRepository.findVisitByDateAndStationID(LocalDate.now(), visit.getStationID()));
+        Optional<Visit> visitOptional = Optional.ofNullable(visitRepository.findVisitByDateAndStationIDAndInterestID(LocalDate.now(), visit.getStationID(), visit.getInterestID()));
         if (visitOptional.isPresent()) {
-            int interestID = visit.getInterestID();
             Visit v = visitOptional.get();
-            if (v.getCountPerInterests().get(interestID) != null) {
-                v.getCountPerInterests().merge(interestID, 1, Integer::sum);
-            } else {
-                v.getCountPerInterests().put(interestID, 1);
-            }
-            v.incrementTotal();
+            v.incrementCount();
             visitRepository.save(v);
         } else {
-            Map<Integer, Integer> counts = new HashMap<>();
-            counts.put(visit.getInterestID(), 1);
             Visit v = new Visit();
-            v.setTotal(1);
             v.setDate(LocalDate.now());
-            v.setCountPerInterests(counts);
+            v.setCount(1);
+            v.setInterestID(visit.getInterestID());
             v.setStationID(visit.getStationID());
             visitRepository.save(v);
         }

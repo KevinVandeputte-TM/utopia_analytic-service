@@ -13,19 +13,19 @@ public class Visit {
     @Id
     private String id;
     private int stationID;
-    private Map<Integer, Integer> countPerInterests;
+    private int interestID;
     private LocalDate date;
-    private int total;
+    private int count;
 
     public Visit() {
     }
 
-    public Visit(String id, int stationID, int interestID, LocalDate date, int total, Map<Integer, Integer> countPerInterests) {
+    public Visit(String id, int stationID, int interestID, LocalDate date, int count) {
         this.id = id;
         this.stationID = stationID;
-        this.countPerInterests = countPerInterests;
+        this.interestID = interestID;
         this.date = date;
-        this.total = total;
+        this.count = count;
     }
 
     public String getId() {
@@ -44,12 +44,12 @@ public class Visit {
         this.stationID = stationID;
     }
 
-    public Map<Integer, Integer> getCountPerInterests() {
-        return countPerInterests;
+    public int getInterestID() {
+        return interestID;
     }
 
-    public void setCountPerInterests(Map<Integer, Integer> countPerInterests) {
-        this.countPerInterests = countPerInterests;
+    public void setInterestID(int interestID) {
+        this.interestID = interestID;
     }
 
     public LocalDate getDate() {
@@ -60,15 +60,15 @@ public class Visit {
         this.date = date;
     }
 
-    public int getTotal() {
-        return total;
+    public int getCount() {
+        return count;
     }
 
-    public void setTotal(int count) {
-        this.total = count;
+    public void setCount(int count) {
+        this.count = count;
     }
 
-    public void incrementTotal() {
-        this.total += 1;
+    public void incrementCount() {
+        this.count += 1;
     }
 }
