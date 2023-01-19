@@ -27,7 +27,7 @@ public class VisitController {
     public void fillDBtemp() {
         if(visitRepository.count() == 0) {
             for(int x = 0; x <= 7; x++) {
-                for(int i = 9; i < 37; i++) {
+                for(int i = 1000; i < 1028; i++) {
                     for(int j = 1; j<=9; j++) {
                         Visit v = new Visit();
                         v.setStationID(i);
